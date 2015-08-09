@@ -1,38 +1,73 @@
 package com.example.paulosousa.todolist;
 
-import android.support.v7.app.ActionBarActivity;
+
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity
+        implements View.OnClickListener {
+
+    public static final String TASKS_TAG = "tasks";
+
+    EditText newTask;
+    Button buttonNewTask;
+    ListView tasksList;
+
+    ArrayList<String> tasks;
+    ArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        tasksList = (ListView) findViewById(R.id.tasksList);
+        newTask = (EditText)findViewById(R.id.new_task);
+        buttonNewTask = (Button)findViewById(R.id.button_new_task);
+        buttonNewTask.setOnClickListener(this);
+
+        tasks = getTasks(savedInstanceState);
+        adapter = new ArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                tasks);
+        tasksList.setAdapter(adapter);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putStringArrayList(TASKS_TAG, tasks);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    public void onClick(View view) {
+        String task = newTask.getText().toString().trim();
+        switch (view.getId()){
+            case R.id.button_new_task:
+                updateTasksList(task);
+                newTask.setText("");
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    private ArrayList<String> getTasks(Bundle savedInstanceState) {
+        if(savedInstanceState == null) return new ArrayList<>();
+
+        return savedInstanceState.getStringArrayList(TASKS_TAG);
+    }
+
+    private void updateTasksList(String task){
+        if(task.isEmpty()) return;
+
+        tasks.add(task);
+        adapter.notifyDataSetChanged();
     }
 }

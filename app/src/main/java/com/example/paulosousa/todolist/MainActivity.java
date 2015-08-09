@@ -4,6 +4,7 @@ package com.example.paulosousa.todolist;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +14,8 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity
-        implements View.OnClickListener {
+        implements View.OnClickListener,
+            AdapterView.OnItemLongClickListener {
 
     public static final String TASKS_TAG = "tasks";
 
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity
                 android.R.layout.simple_list_item_1,
                 tasks);
         tasksList.setAdapter(adapter);
+        tasksList.setOnItemLongClickListener(this);
     }
 
     @Override
@@ -58,6 +61,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        updateTasksList(position);
+        return true;
+    }
+
     private ArrayList<String> getTasks(Bundle savedInstanceState) {
         if(savedInstanceState == null) return new ArrayList<>();
 
@@ -68,6 +77,11 @@ public class MainActivity extends AppCompatActivity
         if(task.isEmpty()) return;
 
         tasks.add(task);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void updateTasksList(int position){
+        tasks.remove(position);
         adapter.notifyDataSetChanged();
     }
 }
